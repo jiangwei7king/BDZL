@@ -29,9 +29,9 @@ else
     echo -e "${red}未检测到系统版本，请联系脚本作者！${plain}\n" && exit 1
 fi
 
-if [ $(getconf WORD_BIT) != '32' ] && [ $(getconf LONG_BIT) != '64' ] ; then
+if [ "$(getconf WORD_BIT)" != '32' ] && [ "$(getconf LONG_BIT)" != '64' ] ; then
     echo "本软件不支持 32 位系统(x86)，请使用 64 位系统(x86_64)，如果检测有误，请联系作者"
-    exit -1
+    exit 2
 fi
 
 os_version=""
@@ -127,7 +127,7 @@ install_soga() {
     if [[ ! -f /etc/soga/soga.conf ]]; then
         cp soga.conf /etc/soga/
         echo -e ""
-        echo -e "全新安装，请先参看 wiki 教程：https://github.com/sprov065/soga/wiki，配置必要的内容"
+        echo -e "全新安装，请先参看教程：https://soga.vaxilu.com/，配置必要的内容"
     else
         systemctl start soga
         sleep 2
@@ -139,24 +139,35 @@ install_soga() {
             echo -e "${red}soga 可能启动失败，请稍后使用 soga log 查看日志信息，若无法启动，则可能更改了配置格式，请前往 wiki 查看：https://github.com/sprov065/soga/wiki${plain}"
         fi
     fi
+
+    if [[ ! -f /etc/soga/blockList ]]; then
+        cp blockList /etc/soga/
+    fi
+    if [[ ! -f /etc/soga/dns.yml ]]; then
+        cp dns.yml /etc/soga/
+    fi
     curl -o /usr/bin/soga -Ls https://raw.githubusercontent.com/sprov065/soga/master/soga.sh
     chmod +x /usr/bin/soga
+    curl -o /usr/bin/soga-tool -Ls https://raw.githubusercontent.com/sprov065/soga/master/soga-tool
+    chmod +x /usr/bin/soga-tool
     echo -e ""
     echo "soga 管理脚本使用方法: "
     echo "------------------------------------------"
-    echo "soga              - 显示管理菜单 (功能更多)"
-    echo "soga start        - 启动 soga"
-    echo "soga stop         - 停止 soga"
-    echo "soga restart      - 重启 soga"
-    echo "soga status       - 查看 soga 状态"
-    echo "soga enable       - 设置 soga 开机自启"
-    echo "soga disable      - 取消 soga 开机自启"
-    echo "soga log          - 查看 soga 日志"
-    echo "soga update       - 更新 soga"
-    echo "soga update x.x.x - 更新 soga 指定版本"
-    echo "soga install      - 安装 soga"
-    echo "soga uninstall    - 卸载 soga"
-    echo "soga version      - 查看 soga 版本"
+    echo "soga                    - 显示管理菜单 (功能更多)"
+    echo "soga start              - 启动 soga"
+    echo "soga stop               - 停止 soga"
+    echo "soga restart            - 重启 soga"
+    echo "soga status             - 查看 soga 状态"
+    echo "soga enable             - 设置 soga 开机自启"
+    echo "soga disable            - 取消 soga 开机自启"
+    echo "soga log                - 查看 soga 日志"
+    echo "soga update             - 更新 soga"
+    echo "soga update x.x.x       - 更新 soga 指定版本"
+    echo "soga config             - 显示配置文件内容"
+    echo "soga config xx=xx yy=yy - 自动设置配置文件"
+    echo "soga install            - 安装 soga"
+    echo "soga uninstall          - 卸载 soga"
+    echo "soga version            - 查看 soga 版本"
     echo "------------------------------------------"
 }
 
