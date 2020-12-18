@@ -56,6 +56,7 @@ installbbrplus(){
     kernel_version="4.14.129-bbrplus"
     if [[ "${release}" == "centos" ]]; then
         wget http://www.jacobabc123.xyz/bbr/kernel-4.14.129-bbrplus.rpm && yum install -y kernel-4.14.129-bbrplus.rpm
+        yum install -y kernel-${kernel_version}.rpm
         rm -f kernel-${kernel_version}.rpm
         kernel_version="4.14.129_bbrplus" #fix a bug
     elif [[ "${release}" == "debian" || "${release}" == "ubuntu" ]]; then
