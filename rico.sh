@@ -9,10 +9,10 @@ red='\033[0;31m'
 green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
-software=(ä½¿ç”¨è‡ªç­¾è¯ä¹¦çš„WSSæ¨¡å¼ ä½¿ç”¨CFè¯ä¹¦çš„WSSæ¨¡å¼ TCPæ¨¡å¼ä¸”åŒæ—¶æ”¯æŒWSæ¨¡å¼)
-operation=(å…¨æ–°å®‰è£… æ›´æ–°é…ç½® æ›´æ–°é•œåƒ æŸ¥çœ‹æ—¥å¿—)
+software=(使用自签证书的WSS模式 使用CF证书的WSS模式 TCP模式且同时支持WS模式)
+operation=(全新安装 更新配置 更新镜像 查看日志)
 # Make sure only root can run our script
-[[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] ä½ æ²¡æƒæ²¡åŠ¿ è¯·å…ˆèŽ·å–ROOTæƒé™!" && exit 1
+[[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] 你没权没势 请先获取ROOT权限!" && exit 1
 
 #Check system
 check_sys(){
@@ -97,11 +97,11 @@ get_char(){
 error_detect_depends(){
     local command=$1
     local depend=`echo "${command}" | awk '{print $4}'`
-    echo -e "[${green}Info${plain}] å¼€å§‹å®‰è£…è½¯ä»¶åŒ… ${depend}"
+    echo -e "[${green}Info${plain}] 开始安装软件包 ${depend}"
     ${command} > /dev/null 2>&1
     if [ $? -ne 0 ]; then
-        echo -e "[${red}Error${plain}] è½¯ä»¶åŒ…å®‰è£…å¤±è´¥ ${red}${depend}${plain}"
-        echo "è¯·æŸ¥çœ‹å¸®åŠ©ç½‘ç«™: https://teddysun.com/486.html and contact."
+        echo -e "[${red}Error${plain}] 软件包安装失败 ${red}${depend}${plain}"
+        echo "请查看帮助网站: https://teddysun.com/486.html and contact."
         exit 1
     fi
 }
@@ -109,61 +109,61 @@ error_detect_depends(){
 # Pre-installation settings
 pre_install_docker_compose(){
     # Set ssrpanel_url
-    echo "è¯·è¾“å…¥ä½ SSPå‰ç«¯çš„ç½‘å€"
-    read -p "(http://xxx.com æœ‰tlsçš„æ¢æˆhttps æ³¨æ„ç½‘å€æœ€åŽä¸è¦æœ‰æ–œæ â€˜/â€™):" ssrpanel_url
+    echo "请输入你SSP前端的网址"
+    read -p "(http://xxx.com 有tls的换成https 注意网址最后不要有斜杠‘/’):" ssrpanel_url
     [ -z "${ssrpanel_url}" ]
     echo
     echo "---------------------------"
-    echo "SSPanelç½‘å€ = ${ssrpanel_url}"
+    echo "SSPanel网址 = ${ssrpanel_url}"
     echo "---------------------------"
     echo
     # Set ssrpanel key
-    echo "ä½ å‰ç«¯configæ–‡ä»¶é‡Œçš„Mukeyå€¼"
-    read -p "(ä½ ç½‘ç«™ç›®å½•/www/wwwroot/xxx/config.php é‡Œé¢çš„mukeyå€¼ å‰åŽç«¯è¦å¯¹åº”):" ssrpanel_key
+    echo "你前端config文件里的Mukey值"
+    read -p "(你网站目录/www/wwwroot/xxx/config.php 里面的mukey值 前后端要对应):" ssrpanel_key
     [ -z "${ssrpanel_key}" ]
     echo
     echo "---------------------------"
-    echo "SSPanelé€šä¿¡å¯†é’¥ = ${ssrpanel_key}"
+    echo "SSPanel通信密钥 = ${ssrpanel_key}"
     echo "---------------------------"
     echo
 
     # Set ssrpanel speedtest function
-    echo "ä½ æ‰“ç®—éš”å¤šä¹…è¿›è¡Œä¸€æ¬¡èŠ‚ç‚¹ç½‘é€Ÿæµ‹è¯•"
-    read -p "(å¤šä¹…ä¸€æ¬¡: å›žè½¦é»˜è®¤6å°æ—¶è¿›è¡Œä¸€æ¬¡):" ssrpanel_speedtest
+    echo "你打算隔多久进行一次节点网速测试"
+    read -p "(多久一次: 回车默认6小时进行一次):" ssrpanel_speedtest
     [ -z "${ssrpanel_speedtest}" ] && ssrpanel_speedtest=6
     echo
     echo "---------------------------"
-    echo "å‡ å°æ—¶ä¸€æ¬¡ = ${ssrpanel_speedtest}"
+    echo "几小时一次 = ${ssrpanel_speedtest}"
     echo "---------------------------"
     echo
 
     # Set ssrpanel node_id
-    echo "ä½ å‰ç«¯èŠ‚ç‚¹ä¿¡æ¯é‡Œé¢çš„èŠ‚ç‚¹ID"
-    read -p "(å°±ä½ ä»–å¦ˆå‰ç«¯æ·»åŠ èŠ‚ç‚¹åŽç”Ÿæˆçš„ID æ¯”å¦‚è¯´æ˜¯3è¿™æ ·å­):" ssrpanel_node_id
+    echo "你前端节点信息里面的节点ID"
+    read -p "(就你他妈前端添加节点后生成的ID 比如说是3这样子):" ssrpanel_node_id
     [ -z "${ssrpanel_node_id}" ] && ssrpanel_node_id=0
     echo
     echo "---------------------------"
-    echo "SSPanelå‰ç«¯èŠ‚ç‚¹ID = ${ssrpanel_node_id}"
+    echo "SSPanel前端节点ID = ${ssrpanel_node_id}"
     echo "---------------------------"
     echo
 
     # Set V2ray backend API Listen port
-    echo "è¯·è®¾ç½®V2RAYçš„å‡ºå£ç›‘å¬ç«¯å£"
-    read -p "(å›žè½¦é»˜è®¤2333ç«¯å£å³å¯ å¦‚æœ‰å¤šå¼€åˆç§Ÿè¯·ä¸è¦é‡å¤):" v2ray_api_port
+    echo "请设置V2RAY的出口监听端口"
+    read -p "(回车默认2333端口即可 如有多开合租请不要重复):" v2ray_api_port
     [ -z "${v2ray_api_port}" ] && v2ray_api_port=2333
     echo
     echo "---------------------------"
-    echo "V2RAYå‡ºå£ç›‘å¬ç«¯å£ = ${v2ray_api_port}"
+    echo "V2RAY出口监听端口 = ${v2ray_api_port}"
     echo "---------------------------"
     echo
 
     # Set Setting if the node go downwith panel
-    echo "è¯·é—®ä½ å‰ç«¯é¢æ¿æ˜¯ä»€ä¹ˆç¨‹åº"
-    read -p "(å›žè½¦é»˜è®¤SSPANELé¢æ¿ï¼š1):" v2ray_downWithPanel
+    echo "请问你前端面板是什么程序"
+    read -p "(回车默认SSPANEL面板：1):" v2ray_downWithPanel
     [ -z "${v2ray_downWithPanel}" ] && v2ray_downWithPanel=1
     echo
     echo "---------------------------"
-    echo "å‰ç«¯é¢æ¿ç±»åž‹ = ${v2ray_downWithPanel}"
+    echo "前端面板类型 = ${v2ray_downWithPanel}"
     echo "---------------------------"
     echo
 }
@@ -171,53 +171,53 @@ pre_install_docker_compose(){
 pre_install_caddy(){
 
     # Set caddy v2ray domain
-    echo "è¯·è¾“å…¥ä½ è§£æžåˆ°æœ¬èŠ‚ç‚¹æœåŠ¡å™¨çš„åŸŸå"
-    read -p "WSæ¨¡å¼è¦æ±‚æä¾›è§£æžåˆ°æœ¬èŠ‚ç‚¹IPçš„ç½‘å€:" v2ray_domain
+    echo "请输入你解析到本节点服务器的域名"
+    read -p "WS模式要求提供解析到本节点IP的网址:" v2ray_domain
     [ -z "${v2ray_domain}" ]
     echo
     echo "---------------------------"
-    echo "ä¼ªè£…åŸŸå = ${v2ray_domain}"
+    echo "伪装域名 = ${v2ray_domain}"
     echo "---------------------------"
     echo
 
 
     # Set caddy v2ray path
-    echo "CADDYåä»£åˆ°V2RAYçš„è™šæ‹Ÿç›®å½•"
-    read -p "(åŠ¡å¿…äºŽå‰ç«¯èŠ‚ç‚¹ä¿¡æ¯çš„Pathå€¼ç›¸åŒ,å›žè½¦é»˜è®¤: /v2ray):" v2ray_path
+    echo "CADDY反代到V2RAY的虚拟目录"
+    read -p "(务必于前端节点信息的Path值相同,回车默认: /v2ray):" v2ray_path
     [ -z "${v2ray_path}" ] && v2ray_path="/v2ray"
     echo
     echo "---------------------------"
-    echo "ä¼ªè£…ç›®å½• = ${v2ray_path}"
+    echo "伪装目录 = ${v2ray_path}"
     echo "---------------------------"
     echo
 
     # Set caddy v2ray tls email
-    echo "å‰ç«¯èŽ·å–TLSè¯ä¹¦æ—¶ç™»è®°çš„é‚®ç®±"
-    read -p "ç›´æŽ¥å›žè½¦é»˜è®¤å³å¯(admin@admin.com):" v2ray_email
+    echo "前端获取TLS证书时登记的邮箱"
+    read -p "直接回车默认即可(admin@admin.com):" v2ray_email
     [ -z "${v2ray_email}" ] && v2ray_email="admin@admin.com"
     echo
     echo "---------------------------"
-    echo "è¯ä¹¦é‚®ç®± = ${v2ray_email}"
+    echo "证书邮箱 = ${v2ray_email}"
     echo "---------------------------"
     echo
 
     # Set Caddy v2ray listen port
-    echo "V2RAYåŽç«¯å…¥å£ç›‘å¬ç«¯å£"
-    read -p "(å¦‚å¤šå¼€åˆç§Ÿæ³¨æ„è¯·ä¸è¦é‡å¤,å›žè½¦é»˜è®¤ç«¯å£: 10550):" v2ray_local_port
+    echo "V2RAY后端入口监听端口"
+    read -p "(如多开合租注意请不要重复,回车默认端口: 10550):" v2ray_local_port
     [ -z "${v2ray_local_port}" ] && v2ray_local_port=10550
     echo
     echo "---------------------------"
-    echo "V2RAYåŽç«¯å…¥å£ç›‘å¬ç«¯å£ = ${v2ray_local_port}"
+    echo "V2RAY后端入口监听端口 = ${v2ray_local_port}"
     echo "---------------------------"
     echo
 
     # Set Caddy  listen port
-    echo "CADDYå‰ç«¯å…¥å£ç›‘å¬ç«¯å£"
-    read -p "(å¦‚å¤šå¼€åˆç§Ÿæ³¨æ„è¯·ä¸è¦é‡å¤,å›žè½¦é»˜è®¤ç«¯å£: 443):" caddy_listen_port
+    echo "CADDY前端入口监听端口"
+    read -p "(如多开合租注意请不要重复,回车默认端口: 443):" caddy_listen_port
     [ -z "${caddy_listen_port}" ] && caddy_listen_port=443
     echo
     echo "---------------------------"
-    echo "CADDYå‰ç«¯å…¥å£ç›‘å¬ç«¯å£ = ${caddy_listen_port}"
+    echo "CADDY前端入口监听端口 = ${caddy_listen_port}"
     echo "---------------------------"
     echo
 
@@ -226,12 +226,12 @@ pre_install_caddy(){
 
 # Config docker
 config_docker(){
-    echo "æŒ‰ä»»æ„é”®è¿›è¡Œä¸‹ä¸€æ­¥...æˆ–è€…æŒ‰ Ctrl+C å–æ¶ˆå®‰è£…"
+    echo "按任意键进行下一步...或者按 Ctrl+C 取消安装"
     char=`get_char`
     cd ${cur_dir}
-    echo "å¼€å§‹å®‰è£…è½¯ä»¶åŒ…"
+    echo "开始安装软件包"
     install_dependencies
-    echo "ç­‰å¾…åŠ è½½DOCKERé…ç½®æ–‡ä»¶"
+    echo "等待加载DOCKER配置文件"
     curl -L https://raw.githubusercontent.com/hulisang/v2ray-sspanel-v3-mod_Uim-plugin/master/Docker/V2ray/docker-compose.yml > docker-compose.yml
     sed -i "s|node_id:.*|node_id: ${ssrpanel_node_id}|"  ./docker-compose.yml
     sed -i "s|sspanel_url:.*|sspanel_url: '${ssrpanel_url}'|"  ./docker-compose.yml
@@ -244,13 +244,13 @@ config_docker(){
 
 # Config caddy_docker
 config_caddy_docker(){
-    echo "æŒ‰ä»»æ„é”®è¿›è¡Œä¸‹ä¸€æ­¥...æˆ–è€…æŒ‰ Ctrl+C å–æ¶ˆå®‰è£…"
+    echo "按任意键进行下一步...或者按 Ctrl+C 取消安装"
     char=`get_char`
     cd ${cur_dir}
-    echo "å¼€å§‹å®‰è£…è½¯ä»¶åŒ…"
+    echo "开始安装软件包"
     install_dependencies
     curl -L https://raw.githubusercontent.com/hulisang/v2ray-sspanel-v3-mod_Uim-plugin/master/Docker/Caddy_V2ray/Caddyfile >  Caddyfile
-    echo "ç­‰å¾…åŠ è½½DOCKERé…ç½®æ–‡ä»¶"
+    echo "等待加载DOCKER配置文件"
     curl -L https://raw.githubusercontent.com/hulisang/v2ray-sspanel-v3-mod_Uim-plugin/master/Docker/Caddy_V2ray/docker-compose.yml > docker-compose.yml
     sed -i "s|node_id:.*|node_id: ${ssrpanel_node_id}|"  ./docker-compose.yml
     sed -i "s|sspanel_url:.*|sspanel_url: '${ssrpanel_url}'|"  ./docker-compose.yml
@@ -269,34 +269,34 @@ config_caddy_docker(){
 config_caddy_docker_cloudflare(){
 
     # Set caddy cloudflare ddns email
-    echo "ä½ CFçš„é‚®ç®±è´¦å·"
+    echo "你CF的邮箱账号"
     read -p "(No default ):" cloudflare_email
     [ -z "${cloudflare_email}" ]
     echo
     echo "---------------------------"
-    echo "ä½ CFçš„é‚®ç®±è´¦å· = ${cloudflare_email}"
+    echo "你CF的邮箱账号 = ${cloudflare_email}"
     echo "---------------------------"
     echo
 
     # Set caddy cloudflare ddns key
-    echo "ä½ CFçš„KEYå¯†é’¥"
+    echo "你CF的KEY密钥"
     read -p "(No default ):" cloudflare_key
     [ -z "${cloudflare_email}" ]
     echo
     echo "---------------------------"
-    echo "ä½ CFçš„KEYå¯†é’¥ = ${cloudflare_key}"
+    echo "你CF的KEY密钥 = ${cloudflare_key}"
     echo "---------------------------"
     echo
     echo
 
-    echo "æŒ‰ä»»æ„é”®è¿›è¡Œä¸‹ä¸€æ­¥...æˆ–è€…æŒ‰ Ctrl+C å–æ¶ˆå®‰è£…"
+    echo "按任意键进行下一步...或者按 Ctrl+C 取消安装"
     char=`get_char`
     cd ${cur_dir}
-    echo "æˆ‘å…ˆå®‰è£…curl "
+    echo "我先安装curl "
     install_dependencies
-    echo "å¼€å§‹åŠ è½½CADDYå’ŒDOCKERçš„é…ç½®æ–‡ä»¶"
+    echo "开始加载CADDY和DOCKER的配置文件"
     curl -L https://raw.githubusercontent.com/hulisang/v2ray-sspanel-v3-mod_Uim-plugin/master/Docker/Caddy_V2ray/Caddyfile >Caddyfile
-    epcho "åŠ è½½DOCKERçš„é…ç½®æ–‡ä»¶ä¸­"
+    epcho "加载DOCKER的配置文件中"
     curl -L https://raw.githubusercontent.com/hulisang/v2ray-sspanel-v3-mod_Uim-plugin/master/Docker/Caddy_V2ray/docker-compose.yml >docker-compose.yml
     sed -i "s|node_id:.*|node_id: ${ssrpanel_node_id}|"  ./docker-compose.yml
     sed -i "s|sspanel_url:.*|sspanel_url: '${ssrpanel_url}'|"  ./docker-compose.yml
@@ -317,26 +317,26 @@ config_caddy_docker_cloudflare(){
 
 # Install docker and docker compose
 install_docker(){
-    echo -e "å¼€å§‹å®‰è£… DOCKER "
+    echo -e "开始安装 DOCKER "
     curl -fsSL https://get.docker.com -o get-docker.sh
     bash get-docker.sh
-    echo -e "å¼€å§‹å®‰è£… Docker Compose "
+    echo -e "开始安装 Docker Compose "
     curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
     curl -L https://raw.githubusercontent.com/docker/compose/1.8.0/contrib/completion/bash/docker-compose > /etc/bash_completion.d/docker-compose
     clear
-    echo "å¯åŠ¨ Docker "
+    echo "启动 Docker "
     service docker start
-    echo "å¯åŠ¨ Docker-Compose "
+    echo "启动 Docker-Compose "
     docker-compose up -d
     echo
-    echo -e "æ­å–œï¼ŒV2rayæœåŠ¡å™¨å®‰è£…å®Œæˆï¼"
+    echo -e "恭喜，V2ray服务器安装完成！"
     echo
-    echo "æ³¨æ„:å®‰è£…å®Œæˆä¸ä»£è¡¨å®‰è£…æˆåŠŸ å¯èƒ½åŽŸå› æœ‰ï¼š"
-    echo "1ã€ä½ æœªè´­ä¹°æœ¬V2RAYåŽç«¯è„šæœ¬ï¼ŒæœªèŽ·å¾—æŽˆæƒå®‰è£…å¤±è´¥"
-    echo "2ã€ä½ çš„ç³»ç»Ÿæˆ–è€…ç®¡ç†é¢æ¿å†…ç½®é˜²ç«å¢™ è¯·å…³é—­æˆ–æ”¾è¡Œ"
-    echo "3ã€è„šæœ¬é…ç½®ä¿¡æ¯è¾“å…¥æœ‰è¯¯ æ£€æŸ¥å‰ç«¯ç½‘å€å¯†é’¥èŠ‚ç‚¹ID"
-    echo "4ã€çŽ„å­¦é—®é¢˜ ä½ å¤ªå¸…å¯¼è‡´çš„ æŒ‡å¯¼è”ç³»TG@WocaonimaB"
+    echo "注意:安装完成不代表安装成功 可能原因有："
+    echo "1、你未购买本V2RAY后端脚本，未获得授权安装失败"
+    echo "2、你的系统或者管理面板内置防火墙 请关闭或放行"
+    echo "3、脚本配置信息输入有误 检查前端网址密钥节点ID"
+    echo "4、玄学问题 你太帅导致的 指导联系TG@WocaonimaB"
     echo
 }
 
@@ -355,36 +355,36 @@ install_select(){
     clear
     while true
     do
-    echo  "æ‚¨é€‰æ‹©å“ªä¸ªV2RAYåŽç«¯å®‰è£…æ–¹å¼:"
+    echo  "您选择哪个V2RAY后端安装方式:"
     for ((i=1;i<=${#software[@]};i++ )); do
         hint="${software[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "(æŽ¨èå›žè½¦${software[0]}):" selected
+    read -p "(推荐回车${software[0]}):" selected
     [ -z "${selected}" ] && selected="1"
     case "${selected}" in
         1|2|3|4)
         echo
-        echo "ä½ é€‰æ‹©äº† = ${software[${selected}-1]}"
+        echo "你选择了 = ${software[${selected}-1]}"
         echo
         break
         ;;
         *)
-        echo -e "[${red}Error${plain}] åˆ«çžŽå‡ æŠŠä¹±è¾“,è¯·è¾“å…¥æ­£ç¡®æ•°å­—"
+        echo -e "[${red}Error${plain}] 别瞎几把乱输,请输入正确数字"
         ;;
     esac
     done
 }
 install_dependencies(){
     if check_sys packageManager yum; then
-        echo -e "[${green}Info${plain}] æ£€æŸ¥EPELå­˜å‚¨åº“..."
+        echo -e "[${green}Info${plain}] 检查EPEL存储库..."
         if [ ! -f /etc/yum.repos.d/epel.repo ]; then
             yum install -y epel-release > /dev/null 2>&1
         fi
-        [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "[${red}Error${plain}] å®‰è£…EPELå‚¨å­˜åº“å¤±è´¥ï¼Œè¯·æ£€æŸ¥ä¸€ä¸‹." && exit 1
+        [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "[${red}Error${plain}] 安装EPEL储存库失败，请检查一下." && exit 1
         [ ! "$(command -v yum-config-manager)" ] && yum install -y yum-utils > /dev/null 2>&1
         [ x"$(yum-config-manager epel | grep -w enabled | awk '{print $3}')" != x"True" ] && yum-config-manager --enable epel > /dev/null 2>&1
-        echo -e "[${green}Info${plain}] æ£€æŸ¥EPELå‚¨å­˜åº“æ˜¯å¦å®Œæ•´..."
+        echo -e "[${green}Info${plain}] 检查EPEL储存库是否完整..."
 
         yum_depends=(
              curl
@@ -401,32 +401,32 @@ install_dependencies(){
             error_detect_depends "apt-get -y install ${depend}"
         done
     fi
-    echo -e "[${green}Info${plain}] å°†æ—¶åŒºè®¾ç½®ä¸ºä¸Šæµ·"
+    echo -e "[${green}Info${plain}] 将时区设置为上海"
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
     date -s "$(curl -sI g.cn | grep Date | cut -d' ' -f3-6)Z"
 
 }
 #update_image
-æ›´æ–°é•œåƒ_v2ray(){
-    echo "å…³é—­å½“å‰æœåŠ¡"
+更新镜像_v2ray(){
+    echo "关闭当前服务"
     docker-compose down
-    echo "åŠ è½½DOCKERé•œåƒ"
+    echo "加载DOCKER镜像"
     docker-compose pull
-    echo "å¼€å§‹è¿è¡ŒDOKCERæœåŠ¡"
+    echo "开始运行DOKCER服务"
     docker-compose up -d
 }
 
 #show last 100 line log
 
-æŸ¥çœ‹æ—¥å¿—_v2ray(){
-    echo "å°†è¦æ˜¾ç¤º100è¡Œçš„è¿è¡Œæ—¥å¿—"
+查看日志_v2ray(){
+    echo "将要显示100行的运行日志"
     docker-compose logs --tail 100
 }
 
 # Update config
-æ›´æ–°é…ç½®_v2ray(){
+更新配置_v2ray(){
     cd ${cur_dir}
-    echo "å…³é—­å½“å‰æœåŠ¡"
+    echo "关闭当前服务"
     docker-compose down
     install_select
     case "${selected}" in
@@ -445,17 +445,17 @@ install_dependencies(){
         config_docker
         ;;
         *)
-        echo "é”™è¯¯çš„æ•°å­—"
+        echo "错误的数字"
         ;;
     esac
 
-    echo "å¼€å§‹è¿è¡ŒDOKCERæœåŠ¡"
+    echo "开始运行DOKCER服务"
     docker-compose up -d
 
 }
 # remove config
 # Install v2ray
-å…¨æ–°å®‰è£…_v2ray(){
+全新安装_v2ray(){
     install_select
     case "${selected}" in
         1)
@@ -473,7 +473,7 @@ install_dependencies(){
         config_docker
         ;;
         *)
-        echo "é”™è¯¯çš„æ•°å­—"
+        echo "错误的数字"
         ;;
     esac
     install_docker
@@ -483,26 +483,26 @@ install_dependencies(){
 clear
 while true
 do
-echo -e "\033[42;30m æ­¤ä¸ºç”±ç‹ç‹¸çš„è„šæœ¬æ±‰åŒ–ç‰ˆ ä¸æ”¯æŒå®¡è®¡è®¾å¤‡é™é€Ÿ \033[0m"
-echo -e "\033[42;30m å¦‚éœ€ä»£æ­å»ºæˆ–éœ€æŠ€æœ¯æŒ‡å¯¼è¯·è”ç³»TG:@WocaonimaB \033[0m"
+echo -e "\033[42;30m 此为由狐狸的脚本汉化版 不支持审计设备限速 \033[0m"
+echo -e "\033[42;30m 如需代搭建或需技术指导请联系TG:@WocaonimaB \033[0m"
 echo  ""
-echo  "è¯·è¾“å…¥æ•°å­—é€‰æ‹©ä½ è¦è¿›è¡Œçš„æ“ä½œï¼š"
+echo  "请输入数字选择你要进行的操作："
 for ((i=1;i<=${#operation[@]};i++ )); do
     hint="${operation[$i-1]}"
     echo -e "${green}${i}${plain}) ${hint}"
 done
-read -p "è¯·é€‰æ‹©æ•°å­—åŽå›žè½¦ (å›žè½¦é»˜è®¤ ${operation[0]}):" selected
+read -p "请选择数字后回车 (回车默认 ${operation[0]}):" selected
 [ -z "${selected}" ] && selected="1"
 case "${selected}" in
     1|2|3|4)
     echo
-    echo "ä½ çš„æƒ³æ³• = ${operation[${selected}-1]}"
+    echo "你的想法 = ${operation[${selected}-1]}"
     echo
     ${operation[${selected}-1]}_v2ray
     break
     ;;
     *)
-    echo -e "[${red}Error${plain}] ä½ å¦ˆé€¼å•Š,è¯·è¾“å…¥æ­£ç¡®æ•°å­— [1-4]"
+    echo -e "[${red}Error${plain}] 你妈逼啊,请输入正确数字 [1-4]"
     ;;
 esac
 done
