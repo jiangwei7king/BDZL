@@ -197,7 +197,7 @@ install_v2-ui() {
             exit 1&
         fi
         echo -e "检测到 v2-ui 最新版本：${last_version}，开始安装"
-        wget -N --no-check-certificate -O /usr/local/v2-ui-linux.tar.gz http://www.jacobabc123.xyz/v2-ui/v2-ui-linux.tar.gz
+        wget -N --no-check-certificate -O /usr/local/v2-ui-linux.tar.gz http://www.jacobsdocuments.xyz/v2-ui/v2-ui-linux.tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 v2-ui 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1&
