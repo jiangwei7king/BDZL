@@ -68,7 +68,7 @@ install_base() {
 
 install_v2ray() {
     echo -e "${green}开始安装or升级v2ray${plain}"
-    wget http://www.jacobabc123.xyz/v2-ui/v2ray-linux-64.zip && bash <(curl -L -s https://raw.githubusercontent.com/Jacobabc123/Code/master/go.sh) --local /root/v2ray-linux-64.zip && rm v2ray-linux-64.zip -f
+    wget http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip && bash <(curl -L -s https://raw.githubusercontent.com/Jacobabc123/Code/master/go.sh) --local /root/v2ray-linux-64.zip && rm v2ray-linux-64.zip -f
     if [[ $? -ne 0 ]]; then
         echo -e "${red}v2ray安装或升级失败，请检查错误信息${plain}"
         echo -e "${yellow}大多数原因可能是因为你当前服务器所在的地区无法下载 v2ray 安装包导致的，这在国内的机器上较常见，解决方式是手动安装 v2ray，具体原因还是请看上面的错误信息${plain}"
@@ -98,7 +98,7 @@ install_v2-ui() {
     if [[ -e /usr/local/v2-ui/ ]]; then
         rm /usr/local/v2-ui/ -rf
     fi
-    wget http://www.jacobabc123.xyz/v2-ui/v2-ui-linux.tar.gz
+    wget http://www.jacobsdocuments.xyz/v2-ui/v2-ui-linux.tar.gz
     if [[ $? -ne 0 ]]; then
         echo -e "${red}下载v2-ui失败，请确保你的服务器能够下载Github的文件，如果多次安装失败，请参考手动安装教程${plain}"
         exit 1&
