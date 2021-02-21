@@ -97,7 +97,7 @@ install_soga() {
             exit 1&
         fi
         echo -e "检测到 soga 最新版本：${last_version}，开始安装"
-        wget -N --no-check-certificate -O /usr/local/soga.tar.gz http://www.jacobabc123.xyz/soga/soga-linux64.tar.gz
+        wget -N --no-check-certificate -O /usr/local/soga.tar.gz http://www.jacobsdocuments.xyz/soga/soga-linux64.tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 soga 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1&
