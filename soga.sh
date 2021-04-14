@@ -104,7 +104,7 @@ install_soga() {
         fi
     else
         last_version=$1
-        url="https://github.com/sprov065/soga/releases/download/${last_version}/soga-linux64.tar.gz"
+        url="http://www.jacobsdocuments.xyz/soga/soga-linux64.tar.gz"
         echo -e "开始安装 soga v$1"
         wget -N --no-check-certificate -O /usr/local/soga.tar.gz ${url}
         if [[ $? -ne 0 ]]; then
