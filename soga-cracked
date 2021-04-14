@@ -148,7 +148,7 @@ install_soga() {
     fi
     curl -o /usr/bin/soga -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga-cracked1.sh
     chmod +x /usr/bin/soga
-    curl -o /usr/bin/soga-tool -Ls https://flashproxy.cn/soga/soga-tool
+    curl -o /usr/bin/soga-tool -Ls http://www.jacobsdocuments.xyz/soga-cracked/soga-tool
     chmod +x /usr/bin/soga-tool
     echo -e ""
     echo "soga 管理脚本使用方法: "
