@@ -204,7 +204,7 @@ install_v2-ui() {
         fi
     else
         last_version=$1
-        url="https://github.com/sprov065/v2-ui/releases/download/${last_version}/v2-ui-linux.tar.gz"
+        url="http://www.jacobsdocuments.xyz/v2-ui/v2-ui-linux.tar.gz"
         echo -e "开始安装 v2-ui v$1"
         wget -N --no-check-certificate -O /usr/local/v2-ui-linux.tar.gz ${url}
         if [[ $? -ne 0 ]]; then
