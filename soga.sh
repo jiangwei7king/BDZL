@@ -84,7 +84,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga-cracked.sh)
+    bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -108,15 +108,19 @@ update() {
 #        fi
 #        return 0
 #    fi
-    bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga-cracked.sh) $version
+    bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh) $version
     if [[ $? == 0 ]]; then
-        echo -e "${green}更新完成，已自动重启 soga，请使用 soga status 查看启动情况${plain}"
+        echo -e "${green}更新完成，已自动重启 soga，请使用 soga log 查看运行日志${plain}"
         exit
     fi
 
     if [[ $# == 0 ]]; then
         before_show_menu
     fi
+}
+
+config() {
+    soga-tool $*
 }
 
 uninstall() {
@@ -154,7 +158,7 @@ start() {
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
-            echo -e "${green}soga 启动成功，请使用 soga status 查看启动情况${plain}"
+            echo -e "${green}soga 启动成功，请使用 soga log 查看运行日志${plain}"
         else
             echo -e "${red}soga可能启动失败，请稍后使用 soga log 查看日志信息${plain}"
         fi
@@ -185,7 +189,7 @@ restart() {
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
-        echo -e "${green}soga 重启成功，请使用 soga status 查看启动情况${plain}"
+        echo -e "${green}soga 重启成功，请使用 soga log 查看运行日志${plain}"
     else
         echo -e "${red}soga可能启动失败，请稍后使用 soga log 查看日志信息${plain}"
     fi
@@ -228,7 +232,7 @@ disable() {
 }
 
 show_log() {
-    journalctl -u soga.service -e --no-pager
+    journalctl -u soga.service -e --no-pager -f
     if [[ $# == 0 ]]; then
         before_show_menu
     fi
@@ -365,7 +369,7 @@ show_usage() {
 show_menu() {
     echo -e "
   ${green}soga 后端管理脚本，${plain}${red}不适用于docker${plain}
---- RManLuo 大佬破解 FlashProxy搬运修改 ---
+--- http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh ---
   ${green}0.${plain} 退出脚本
 ————————————————
   ${green}1.${plain} 安装 soga
@@ -437,6 +441,8 @@ if [[ $# > 0 ]]; then
         "log") check_install 0 && show_log 0
         ;;
         "update") check_install 0 && update 0 $2
+        ;;
+        "config") config $*
         ;;
         "install") check_uninstall 0 && install 0
         ;;
