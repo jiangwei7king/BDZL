@@ -150,7 +150,7 @@ install_soga() {
     if [[ ! -f /etc/soga/dns.yml ]]; then
         cp dns.yml /etc/soga/
     fi
-    curl -o /usr/bin/soga -Ls http://www.jacobsdocuments.xyz/Code/soga.sh
+    curl -o /usr/bin/soga -Ls http://www.jacobsdocuments.xyz/Code/soga-cracked/soga.sh
     chmod +x /usr/bin/soga
     echo -e ""
     echo "soga 管理脚本使用方法: "
