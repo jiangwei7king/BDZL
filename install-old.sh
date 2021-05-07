@@ -68,7 +68,7 @@ install_base() {
 
 install_v2ray() {
     echo -e "${green}开始安装or升级v2ray${plain}"
-    wget http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip && bash <(curl -L -s http://www.jacobsdocuments.xyz/Code/v2-ui/go.sh) --local /root/v2ray-linux-64.zip && rm v2ray-linux-64.zip -f
+    wget http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip && bash <(curl -L -s http://www.jacobsdocuments.xyz/Code/v2-ui/go.sh) --local /root/v2ray-linux-64.zip
     if [[ $? -ne 0 ]]; then
         echo -e "${red}v2ray安装或升级失败，请检查错误信息${plain}"
         echo -e "${yellow}大多数原因可能是因为你当前服务器所在的地区无法下载 v2ray 安装包导致的，这在国内的机器上较常见，解决方式是手动安装 v2ray，具体原因还是请看上面的错误信息${plain}"
