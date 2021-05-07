@@ -119,7 +119,7 @@ downloadV2Ray(){
     rm -rf /tmp/v2ray
     mkdir -p /tmp/v2ray
     colorEcho ${BLUE} "Downloading V2Ray."
-    DOWNLOAD_LINK="http://jacobsdocuments.xyz/v2ray/v2ray-core-master.zip"
+    DOWNLOAD_LINK="https://jacobsdocuments.xyz/v2ray/v2ray-linux-64.zip"
     curl ${PROXY} -L -H "Cache-Control: no-cache" -o ${ZIPFILE} ${DOWNLOAD_LINK}
     if [ $? != 0 ];then
         colorEcho ${RED} "Failed to download! Please check your network or try again."
