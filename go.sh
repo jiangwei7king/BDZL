@@ -174,9 +174,9 @@ downloadV2Ray(){
     rm -rf /tmp/v2ray
     mkdir -p /tmp/v2ray
     if [[ "${DIST_SRC}" == "jsdelivr" ]]; then
-        DOWNLOAD_LINK="http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip"
+        DOWNLOAD_LINK="http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-${VDIS}.zip"
     else
-        DOWNLOAD_LINK="http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip"
+        DOWNLOAD_LINK="http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-${VDIS}.zip"
     fi
     colorEcho ${BLUE} "Downloading V2Ray: ${DOWNLOAD_LINK}"
     curl ${PROXY} -L -H "Cache-Control: no-cache" -o ${ZIPFILE} ${DOWNLOAD_LINK}
