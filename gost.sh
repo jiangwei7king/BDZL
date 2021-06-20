@@ -2,6 +2,7 @@
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
+shell_version="1.0.8"
 gost_conf_path="/etc/gost/config.json"
 raw_conf_path="/etc/gost/rawconf"
 function checknew() {
@@ -49,11 +50,10 @@ function Installation_dependency() {
   if [[ -z ${gzip_ver} ]]; then
     if [[ ${release} == "centos" ]]; then
       yum update
-      yum install -y wget
-      yum install -y gzip
+      yum install -y gzip wget
     else
       apt-get update
-      apt-get install -y gzip
+      apt-get install -y gzip wget
     fi
   fi
 }
@@ -65,8 +65,6 @@ function check_new_ver() {
   if [[ -z ${ct_new_ver} ]]; then
     ct_new_ver="2.11.1"
     echo -e "${Error} gost 最新版本获取失败，正在下载v${ct_new_ver}版"
-    # read -e -p "请输入版本号 [ 格式 x.x.xx , 如 0.8.21 ] :" ct_new_ver
-    #[[ -z "${ct_new_ver}" ]] && echo "取消..." && exit 1
   else
     echo -e "${Info} gost 目前最新版本为 ${ct_new_ver}"
   fi
@@ -123,7 +121,7 @@ function Install_ct() {
     rm -rf "$(pwd)"/gost.service
     rm -rf "$(pwd)"/config.json
   else
-    echo "gost没有安装成功，可以在Github[EasyGost]中提交issue"
+    echo "gost没有安装成功"
     rm -rf "$(pwd)"/gost
     rm -rf "$(pwd)"/gost.service
     rm -rf "$(pwd)"/config.json
@@ -146,8 +144,12 @@ function Stop_ct() {
   echo "已停止"
 }
 function Restart_ct() {
+  rm -rf /etc/gost/config.json
+  confstart
+  writeconf
+  conflast
   systemctl restart gost
-  echo "已重启"
+  echo "已重读配置并重启"
 }
 function read_protocol() {
   echo -e "请问您要设置哪种功能: "
@@ -156,17 +158,21 @@ function read_protocol() {
   echo -e "说明: 一般设置在国内中转机上"
   echo -e "-----------------------------------"
   echo -e "[2] 加密隧道流量转发"
-  echo -e "说明: (1)用于转发原本加密等级较低的流量, 一般设置在国内中转机上"
-  echo -e "      (2)选择此协议意味着你还有一台机器用于接收此加密流量, 之后须在那台机器上配置协议[3]进行对接"
+  echo -e "说明: 用于转发原本加密等级较低的流量, 一般设置在国内中转机上"
+  echo -e "     选择此协议意味着你还有一台机器用于接收此加密流量, 之后须在那台机器上配置协议[3]进行对接"
   echo -e "-----------------------------------"
   echo -e "[3] 解密由gost传输而来的流量并转发"
-  echo -e "说明: 对于经由gost加密中转的流量, 通过此选项进行解密并转发给本机的代理服务端口或转发给其他远程机器, 一般设置在用于接收中转流量的国外机器上"
+  echo -e "说明: 对于经由gost加密中转的流量, 通过此选项进行解密并转发给本机的代理服务端口或转发给其他远程机器"
+  echo -e "      一般设置在用于接收中转流量的国外机器上"
   echo -e "-----------------------------------"
   echo -e "[4] 一键安装ss/socks5代理"
   echo -e "说明: 使用gost内置的代理协议，轻量且易于管理"
   echo -e "-----------------------------------"
   echo -e "[5] 进阶：多落地均衡负载"
   echo -e "说明: 支持各种加密方式的简单均衡负载"
+  echo -e "-----------------------------------"
+  echo -e "[6] 进阶：转发CDN自选节点"
+  echo -e "说明: 只需在中转机设置"
   echo -e "-----------------------------------"
   read -p "请选择: " numprotocol
 
@@ -180,6 +186,8 @@ function read_protocol() {
     proxy
   elif [ "$numprotocol" == "5" ]; then
     enpeer
+  elif [ "$numprotocol" == "6" ]; then
+    cdn
   else
     echo "type error, please try again"
     exit
@@ -256,12 +264,34 @@ function read_d_ip() {
         echo -e "继续添加均衡负载落地配置"
       fi
     done
-
+  elif [[ "$flag_a" == "cdn"* ]]; then
+    echo -e "------------------------------------------------------------------"
+    echo -e "将本机从${flag_b}接收到的流量转发向的自选ip:"
+    read -p "请输入: " flag_c
+    echo -e "请问你要将本机从${flag_b}接收到的流量转发向${flag_c}的哪个端口?"
+    echo -e "[1] 80"
+    echo -e "[2] 443"
+    echo -e "[3] 自定义端口（如8080等）"
+    read -p "请选择端口: " cdnport
+    if [ "$cdnport" == "1" ]; then
+      flag_c="$flag_c:80"
+    elif [ "$cdnport" == "2" ]; then
+      flag_c="$flag_c:443"
+    elif [ "$cdnport" == "3" ]; then
+      read -p "请输入自定义端口: " customport
+      flag_c="$flag_c:$customport"
+    else
+      echo "type error, please try again"
+      exit
+    fi
   else
     echo -e "------------------------------------------------------------------"
     echo -e "请问你要将本机从${flag_b}接收到的流量转发向哪个IP或域名?"
     echo -e "注: IP既可以是[远程机器/当前机器]的公网IP, 也可是以本机本地回环IP(即127.0.0.1)"
-    echo -e "    具体IP地址的填写, 取决于接收该流量的服务正在监听的IP(详见: https://github.com/KANIKIG/Multi-EasyGost)"
+    echo -e "具体IP地址的填写, 取决于接收该流量的服务正在监听的IP(详见: https://github.com/KANIKIG/Multi-EasyGost)"
+    if [[ ${is_cert} == [Yy] ]]; then
+      echo -e "注意: 落地机开启自定义tls证书，务必填写${Red_font_prefix}域名${Font_color_suffix}"
+    fi
     read -p "请输入: " flag_c
   fi
 }
@@ -294,11 +324,16 @@ function read_d_port() {
       echo "type error, please try again"
       exit
     fi
-
+  elif [[ "$flag_a" == "cdn"* ]]; then
+    echo -e "------------------------------------------------------------------"
+    read -p "请输入host:" flag_d
   else
     echo -e "------------------------------------------------------------------"
     echo -e "请问你要将本机从${flag_b}接收到的流量转发向${flag_c}的哪个端口?"
     read -p "请输入: " flag_d
+    if [[ ${is_cert} == [Yy] ]]; then
+      flag_d="$flag_d?secure=true"
+    fi
   fi
 }
 function writerawconf() {
@@ -355,10 +390,14 @@ function encrypt() {
 
   if [ "$numencrypt" == "1" ]; then
     flag_a="encrypttls"
+    echo -e "注意: 选择 是 将针对落地的自定义证书开启证书校验保证安全性，稍后落地机务必填写${Red_font_prefix}域名${Font_color_suffix}"
+    read -e -p "落地机是否开启了自定义tls证书？[y/n]:" is_cert
   elif [ "$numencrypt" == "2" ]; then
     flag_a="encryptws"
   elif [ "$numencrypt" == "3" ]; then
     flag_a="encryptwss"
+    echo -e "注意: 选择 是 将针对落地的自定义证书开启证书校验保证安全性，稍后落地机务必填写${Red_font_prefix}域名${Font_color_suffix}"
+    read -e -p "落地机是否开启了自定义tls证书？[y/n]:" is_cert
   else
     echo "type error, please try again"
     exit
@@ -386,6 +425,72 @@ function enpeer() {
   elif [ "$numpeer" == "4" ]; then
     flag_a="peerwss"
 
+  else
+    echo "type error, please try again"
+    exit
+  fi
+}
+function cdn() {
+  echo -e "请问您要设置的CDN传输类型: "
+  echo -e "-----------------------------------"
+  echo -e "[1] 不加密转发"
+  echo -e "[2] ws隧道-80"
+  echo -e "[3] wss隧道-443"
+  echo -e "注意: 同一则转发，中转与落地传输类型必须对应！"
+  echo -e "此功能只需在中转机设置，落地机若用隧道，流量入口必须是80/443，之后套cdn即可"
+  echo -e "-----------------------------------"
+  read -p "请选择CDN转发传输类型: " numcdn
+
+  if [ "$numcdn" == "1" ]; then
+    flag_a="cdnno"
+  elif [ "$numcdn" == "2" ]; then
+    flag_a="cdnws"
+  elif [ "$numcdn" == "3" ]; then
+    flag_a="cdnwss"
+  else
+    echo "type error, please try again"
+    exit
+  fi
+}
+function cert() {
+  echo -e "-----------------------------------"
+  echo -e "[1] ACME一键申请证书"
+  echo -e "[2] 手动上传证书"
+  echo -e "-----------------------------------"
+  echo -e "说明: 仅用于落地机配置，默认使用的gost内置的证书可能带来安全问题，使用自定义证书提高安全性"
+  echo -e "     配置后对本机所有tls/wss解密生效，无需再次设置"
+  read -p "请选择证书生成方式: " numcert
+
+  if [ "$numcert" == "1" ]; then
+    echo -e "-----------------------------------"
+    echo -e "请确认本机${Red_font_prefix}80端口${Font_color_suffix}未被占用，且已安装${Red_font_prefix}socat${Font_color_suffix}，否则会申请失败"
+    echo -e "socat安装命令  Ubuntu/Debian：apt-get install -y socat ；Centos： yum install -y socat"
+    read -p "请输入解析到本机的域名：" domain
+    curl https://get.acme.sh | sh
+    echo -e "ACME证书申请程序安装成功"
+    if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force; then
+      echo -e "SSL 证书生成成功，默认申请高安全性的ECC证书"
+      if [ ! -d "$HOME/gost_cert" ]; then
+        mkdir $HOME/gost_cert
+      fi
+      if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath $HOME/gost_cert/cert.pem --keypath $HOME/gost_cert/key.pem --ecc --force; then
+        echo -e "SSL 证书配置成功，且会自动续签，证书及秘钥位于用户目录下的 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录"
+        echo -e "证书目录名与证书文件名请勿更改; 删除 gost_cert 目录后用脚本重启,即自动启用gost内置证书"
+        echo -e "-----------------------------------"
+      fi
+    else
+      echo -e "SSL 证书生成失败"
+      exit 1
+    fi
+  elif [ "$numcert" == "2" ]; then
+    if [ ! -d "$HOME/gost_cert" ]; then
+      mkdir $HOME/gost_cert
+    fi
+    echo -e "-----------------------------------"
+    echo -e "已在用户目录建立 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录，请将证书文件 cert.pem 与秘钥文件 key.pem 上传到该目录"
+    echo -e "证书与秘钥文件名必须与上述一致，目录名也请勿更改"
+    echo -e "上传成功后，用脚本重启gost会自动启用，无需再设置; 删除 gost_cert 目录后用脚本重启,即重新启用gost内置证书"
+    echo -e "-----------------------------------"
   else
     echo "type error, please try again"
     exit
@@ -434,6 +539,9 @@ function method() {
     if [ "$is_encrypt" == "nonencrypt" ]; then
       echo "        \"tcp://:$s_port/$d_ip:$d_port\",
         \"udp://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+    elif [ "$is_encrypt" == "cdnno" ]; then
+      echo "        \"tcp://:$s_port/$d_ip?host=$d_port\",
+        \"udp://:$s_port/$d_ip?host=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "peerno" ]; then
       echo "        \"tcp://:$s_port?ip=/root/$d_ip.txt&strategy=$d_port\",
         \"udp://:$s_port?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
@@ -451,7 +559,7 @@ function method() {
     	\"relay+ws://$d_ip:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "encryptwss" ]; then
       echo "        \"tcp://:$s_port\",
-		\"udp://:$s_port\"
+		  \"udp://:$s_port\"
 	],
 	\"ChainNodes\": [
 		\"relay+wss://$d_ip:$d_port\"" >>$gost_conf_path
@@ -473,12 +581,32 @@ function method() {
 	],
 	\"ChainNodes\": [
     	\"relay+wss://:?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
+    elif [ "$is_encrypt" == "cdnws" ]; then
+      echo "        \"tcp://:$s_port\",
+    	\"udp://:$s_port\"
+	],
+	\"ChainNodes\": [
+    	\"relay+ws://$d_ip?host=$d_port\"" >>$gost_conf_path
+    elif [ "$is_encrypt" == "cdnwss" ]; then
+      echo "        \"tcp://:$s_port\",
+    	\"udp://:$s_port\"
+	],
+	\"ChainNodes\": [
+    	\"relay+wss://$d_ip?host=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decrypttls" ]; then
-      echo "        \"relay+tls://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      if [ -d "$HOME/gost_cert" ]; then
+        echo "        \"relay+tls://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+      else
+        echo "        \"relay+tls://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      fi
     elif [ "$is_encrypt" == "decryptws" ]; then
       echo "        \"relay+ws://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decryptwss" ]; then
-      echo "        \"relay+wss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      if [ -d "$HOME/gost_cert" ]; then
+        echo "        \"relay+wss://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+      else
+        echo "        \"relay+wss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      fi
     elif [ "$is_encrypt" == "ss" ]; then
       echo "        \"ss://$d_ip:$s_port@:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "socks" ]; then
@@ -493,6 +621,9 @@ function method() {
     elif [ "$is_encrypt" == "peerno" ]; then
       echo "                \"tcp://:$s_port?ip=/root/$d_ip.txt&strategy=$d_port\",
                 \"udp://:$s_port?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
+    elif [ "$is_encrypt" == "cdnno" ]; then
+      echo "                \"tcp://:$s_port/$d_ip?host=$d_port\",
+                \"udp://:$s_port/$d_ip?host=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "encrypttls" ]; then
       echo "                \"tcp://:$s_port\",
                 \"udp://:$s_port\"
@@ -529,12 +660,32 @@ function method() {
             ],
             \"ChainNodes\": [
                 \"relay+wss://:?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
+    elif [ "$is_encrypt" == "cdnws" ]; then
+      echo "                \"tcp://:$s_port\",
+                \"udp://:$s_port\"
+            ],
+            \"ChainNodes\": [
+                \"relay+ws://$d_ip?host=$d_port\"" >>$gost_conf_path
+    elif [ "$is_encrypt" == "cdnwss" ]; then
+      echo "                 \"tcp://:$s_port\",
+                \"udp://:$s_port\"
+            ],
+            \"ChainNodes\": [
+                \"relay+wss://$d_ip?host=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decrypttls" ]; then
-      echo "                \"relay+tls://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      if [ -d "$HOME/gost_cert" ]; then
+        echo "        		  \"relay+tls://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+      else
+        echo "        		  \"relay+tls://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      fi
     elif [ "$is_encrypt" == "decryptws" ]; then
       echo "        		  \"relay+ws://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decryptwss" ]; then
-      echo "        		  \"relay+wss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      if [ -d "$HOME/gost_cert" ]; then
+        echo "        		  \"relay+wss://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+      else
+        echo "        		  \"relay+wss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+      fi
     elif [ "$is_encrypt" == "ss" ]; then
       echo "        \"ss://$d_ip:$s_port@:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "socks" ]; then
@@ -611,17 +762,89 @@ function show_all_conf() {
       str="   ss   "
     elif [ "$is_encrypt" == "socks" ]; then
       str=" socks5 "
+    elif [ "$is_encrypt" == "cdnno" ]; then
+      str="不加密转发CDN"
+    elif [ "$is_encrypt" == "cdnws" ]; then
+      str="ws隧道转发CDN"
+    elif [ "$is_encrypt" == "cdnwss" ]; then
+      str="wss隧道转发CDN"
+    else
+      str=""
     fi
 
     echo -e " $i  |$str  |$s_port\t|$d_ip:$d_port"
     echo -e "--------------------------------------------------------"
   done
 }
-echo && echo -e "                      gost 一键安装配置脚本
+
+cron_restart() {
+  echo -e "------------------------------------------------------------------"
+  echo -e "gost定时重启任务: "
+  echo -e "-----------------------------------"
+  echo -e "[1] 配置gost定时重启任务"
+  echo -e "[2] 删除gost定时重启任务"
+  echo -e "-----------------------------------"
+  read -p "请选择: " numcron
+  if [ "$numcron" == "1" ]; then
+    echo -e "------------------------------------------------------------------"
+    echo -e "gost定时重启任务类型: "
+    echo -e "-----------------------------------"
+    echo -e "[1] 每？小时重启"
+    echo -e "[2] 每日？点重启"
+    echo -e "-----------------------------------"
+    read -p "请选择: " numcrontype
+    if [ "$numcrontype" == "1" ]; then
+      echo -e "-----------------------------------"
+      read -p "每？小时重启: " cronhr
+      echo "0 0 */$cronhr * * ? * systemctl restart gost" >>/etc/crontab
+      echo -e "定时重启设置成功！"
+    elif [ "$numcrontype" == "2" ]; then
+      echo -e "-----------------------------------"
+      read -p "每日？点重启: " cronhr
+      echo "0 0 $cronhr * * ? systemctl restart gost" >>/etc/crontab
+      echo -e "定时重启设置成功！"
+    else
+      echo "type error, please try again"
+      exit
+    fi
+  elif [ "$numcron" == "2" ]; then
+    sed -i "/gost/d" /etc/crontab
+    echo -e "定时重启任务删除完成！"
+  else
+    echo "type error, please try again"
+    exit
+  fi
+}
+
+update_sh() {
+  ol_version=$(curl -L -s --connect-timeout 5 https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh | grep "shell_version=" | head -1 | awk -F '=|"' '{print $3}')
+  if [ -n "$ol_version" ]; then
+    if [[ "$shell_version" != "$ol_version" ]]; then
+      echo -e "存在新版本，是否更新 [Y/N]?"
+      read -r update_confirm
+      case $update_confirm in
+      [yY][eE][sS] | [yY])
+        wget -N --no-check-certificate https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh
+        echo -e "更新完成"
+        exit 0
+        ;;
+      *) ;;
+
+      esac
+    else
+      echo -e "                 ${Green_font_prefix}当前版本为最新版本！${Font_color_suffix}"
+    fi
+  else
+    echo -e "                 ${Red_font_prefix}脚本最新版本获取失败，请检查与github的连接！${Font_color_suffix}"
+  fi
+}
+
+update_sh
+echo && echo -e "                 gost 一键安装配置脚本"${Red_font_prefix}[${shell_version}]${Font_color_suffix}"
   ----------- KANIKIG -----------
   特性: (1)本脚本采用systemd及gost配置文件对gost进行管理
         (2)能够在不借助其他工具(如screen)的情况下实现多条转发规则同时生效
-		(3)机器reboot后转发不失效
+        (3)机器reboot后转发不失效
   功能: (1)tcp+udp不加密转发, (2)中转机加密转发, (3)落地机解密对接转发
   帮助文档：https://github.com/KANIKIG/Multi-EasyGost
 
@@ -636,6 +859,9 @@ echo && echo -e "                      gost 一键安装配置脚本
  ${Green_font_prefix}7.${Font_color_suffix} 新增gost转发配置
  ${Green_font_prefix}8.${Font_color_suffix} 查看现有gost配置
  ${Green_font_prefix}9.${Font_color_suffix} 删除一则gost配置
+————————————
+ ${Green_font_prefix}10.${Font_color_suffix} gost定时重启配置
+ ${Green_font_prefix}11.${Font_color_suffix} 自定义TLS证书配置
 ————————————" && echo
 read -e -p " 请输入数字 [1-9]:" num
 case "$num" in
@@ -685,6 +911,12 @@ case "$num" in
   else
     echo "请输入正确数字"
   fi
+  ;;
+10)
+  cron_restart
+  ;;
+11)
+  cert
   ;;
 *)
   echo "请输入正确数字 [1-9]"
