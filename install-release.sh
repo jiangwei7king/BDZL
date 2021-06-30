@@ -186,7 +186,8 @@ extract(){
 }
 
 
-/*# 1: new V2Ray. 0: no. 2: not installed. 3: check failed. 4: don't check.
+<< EOF
+# 1: new V2Ray. 0: no. 2: not installed. 3: check failed. 4: don't check.
 getVersion(){
     if [[ -n "$VERSION" ]]; then
         NEW_VER="$VERSION"
@@ -216,7 +217,8 @@ getVersion(){
         fi
         return 0
     fi
-}*/
+}
+EOF
 
 stopV2ray(){
     colorEcho ${BLUE} "Shutting down V2Ray service."
@@ -367,7 +369,8 @@ remove(){
     fi
 }
 
-/*checkUpdate(){
+<< EOF
+checkUpdate(){
     echo "Checking for update."
     VERSION=""
     getVersion
@@ -381,7 +384,8 @@ remove(){
         colorEcho ${BLUE} "The newest version for V2Ray is ${NEW_VER}."
     fi
     return 0
-}*/
+}
+EOF
 
 main(){
     #helping information
