@@ -284,7 +284,7 @@ installV2Ray(){
         UUID=$(cat /proc/sys/kernel/random/uuid)
 
         sed -i "s/10086/${PORT}/g" "/etc/v2ray/config.json"
-        sed -i "s/23ad6b10-8d1a-40f7-8ad0-e3e35cd38297/${UUID}/g" "/etc/v2ray/config.json"
+        sed -i "s/b72941b1-9a6c-37e4-a097-f9a9b933d799/${UUID}/g" "/etc/v2ray/config.json"
 
         colorEcho ${BLUE} "PORT:${PORT}"
         colorEcho ${BLUE} "UUID:${UUID}"
