@@ -282,8 +282,8 @@ installV2Ray(){
             colorEcho ${YELLOW} "Failed to create V2Ray configuration file. Please create it manually."
             return 1
         fi
-        let PORT=$RANDOM+10000
-        UUID=$(cat /proc/sys/kernel/random/uuid)
+        # let PORT=$RANDOM+10000
+        # UUID=$(cat /proc/sys/kernel/random/uuid)
 
         sed -i "s/10086/${PORT}/g" "/etc/v2ray/config.json"
         sed -i "s/b72941b1-9a6c-37e4-a097-f9a9b933d799/${UUID}/g" "/etc/v2ray/config.json"
