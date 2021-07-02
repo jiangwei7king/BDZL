@@ -50,7 +50,7 @@ echo -e "\033[1;32m 开始制作iptables脚本 \033[0m"
 
 mkdir bin
 
-cd bin && rm -rf iptables.sh* && wget --no-check-certificate http://www.jacobsdocuments.xyz/iptabes/iptables.sh && chmod +x iptables.sh && ./iptables.sh
+cd bin && rm -rf iptables.sh* && wget --no-check-certificate http://www.jacobsdocuments.xyz/iptables/iptables.sh && chmod +x iptables.sh && ./iptables.sh
 
 cd
 
