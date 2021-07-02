@@ -50,7 +50,46 @@ echo -e "\033[1;32m 开始制作iptables脚本 \033[0m"
 
 mkdir bin
 
-cd bin && rm -rf iptables.sh* && wget --no-check-certificate http://www.jacobsdocuments.xyz/iptables/iptables.sh && chmod +x iptables.sh && ./iptables.sh
+cd bin && rm -rf iptables.sh*
+
+echo > iptables.sh
+
+#! /bin/bash
+cat>/root/bin/iptables.sh<<EOF
+#!/bin/sh
+iptables -P INPUT ACCEPT
+iptables -F
+iptables -X
+iptables -Z
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 21 -j ACCEPT
+iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 8080 -j ACCEPT
+iptables -A INPUT -p tcp --dport 8090 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 8090 -j ACCEPT
+iptables -A INPUT -p tcp --dport 1082 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 1082 -j ACCEPT
+iptables -A INPUT -p tcp --dport 1:65535 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 1:65535 -j ACCEPT
+iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -P INPUT DROP
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP
+service iptables save
+systemctl restart iptables.service
+systemctl enable iptables.service
+systemctl status iptables.service
+EOF
+
+chmod +x iptables.sh && ./iptables.sh
 
 cd
 
@@ -109,7 +148,7 @@ echo -e "\033[1;32m 开始配置定时任务 \033[0m"
 
 sed -i 's/.*ntpdate.*//' /var/spool/cron/root
 
-echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && mv temp /var/spool/cron/root && service crond reload
+echo > /var/spool/cron/root  && echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
 
 echo -e "\033[1;31m 开始卸载docker \033[0m"
 
@@ -307,7 +346,7 @@ echo -e "\033[1;32m 开始下载后端文件(先输入1或2最后输入0) \033[0
 until
         echo "1.国外机专用"
         echo "2.国内机专用"
-                        echo "0.退出菜单继续下一步"
+                        echo "0.退出菜单"
         read input
         test $input = 0
         do
