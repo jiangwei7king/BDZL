@@ -18,9 +18,11 @@ do
     sleep 0.1
 done
 
-echo ""
+echo "start"
 
 echo -e "\033[1;31m 脚本开始运行(由Jacob D制作) \033[0m"
+
+sleep 3
 
 echo -e "\033[1;32m 开始安装 iptables \033[0m"
 
@@ -105,7 +107,7 @@ do
     let i=i+5
     str+=">"
 done
-echo ""
+echo "loading"
 
 echo -e "\033[1;32m 开始同步时间 \033[0m"
 
@@ -149,6 +151,20 @@ echo -e "\033[1;32m 开始配置定时任务 \033[0m"
 sed -i 's/.*ntpdate.*//' /var/spool/cron/root
 
 echo > /var/spool/cron/root  && echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
+
+#!/bin/bash
+i=0
+str=""
+arry=("|" "/" "-" "\\")
+while [ $i -le 100 ]
+do
+    let index=i%4
+    printf "%3d%% %c%-20s%c\r" "$i" "${arry[$index]}" "$str" "${arry[$index]}"
+    sleep 0.2
+    let i=i+5
+    str+=">"
+done
+echo "loading"
 
 echo -e "\033[1;31m 开始卸载docker \033[0m"
 
@@ -200,7 +216,7 @@ do
     let i=i+10
     str+=">"
 done
-echo ""
+echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
@@ -218,7 +234,7 @@ do
     let i=i+10
     str+=">"
 done
-echo ""
+echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
@@ -236,7 +252,7 @@ do
     let i=i+10
     str+=">"
 done
-echo ""
+echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
@@ -254,7 +270,7 @@ do
     let i=i+10
     str+=">"
 done
-echo ""
+echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
@@ -272,7 +288,7 @@ do
     let i=i+10
     str+=">"
 done
-echo ""
+echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
@@ -290,7 +306,7 @@ do
     let i=i+10
     str+=">"
 done
-echo ""
+echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
@@ -308,7 +324,7 @@ do
     let i=i+10
     str+=">"
 done
-echo ""
+echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
@@ -340,6 +356,20 @@ echo -e "\033[1;32m 开始获取后端 \033[0m"
 
 yum install -y git 2> /dev/null || apt install -y git
 
+#!/bin/bash
+i=0
+str=""
+arry=("\\" "|" "/" "-")
+while [ $i -le 100 ]
+do
+    let index=i%4
+    printf "[%-100s] %d %c\r" "$str" "$i" "${arry[$index]}"
+    sleep 0.1
+    let i=i+1
+    str+="#"
+done
+echo "done"
+
 echo -e "\033[1;32m 开始下载后端文件(先输入1或2最后输入0) \033[0m"
 
 #!/bin/sh
@@ -357,4 +387,4 @@ until
             esac
             done
 
-echo -e "\033[1;34m Done \033[0m"
+echo -e "\033[1;34m All Done \033[0m"
