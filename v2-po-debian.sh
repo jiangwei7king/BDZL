@@ -149,7 +149,7 @@ echo -e "\033[1;32m 开始配置定时任务 \033[0m"
 
 sed -i 's/.*ntpdate.*//' /var/spool/cron/root
 
-echo > /var/spool/cron/root  && echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service cron reload
+echo > /var/spool/cron/crontabs/root  && echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/crontabs/root > temp && echo y | mv temp /var/spool/cron/crontabs/root && service cron reload
 
 #!/bin/bash
 i=0
