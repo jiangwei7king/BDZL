@@ -20,7 +20,7 @@ done
 
 echo "start"
 
-echo -e "\033[1;31m 脚本开始运行(由Jacob D制作) \033[0m"
+echo -e "\033[1;31m 脚本开始运行(觔斗雲专版，由Jacob D制作) \033[0m"
 
 sleep 3
 
