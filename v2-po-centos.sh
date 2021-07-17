@@ -24,6 +24,22 @@ echo -e "\033[1;31m 脚本开始运行(觔斗雲专版，由Jacob D制作) \033[
 
 sleep 3
 
+#!/bin/bash
+i=0
+str=""
+arry=("|" "/" "-" "\\")
+while [ $i -le 100 ]
+do
+    let index=i%4
+    printf "%3d%% %c%-20s%c\r" "$i" "${arry[$index]}" "$str" "${arry[$index]}"
+    sleep 0.2
+    let i=i+5
+    str+=">"
+done
+echo "loading"
+
+yum -y install wget
+
 echo -e "\033[1;32m 开始安装 iptables \033[0m"
 
 yum -y install iptables
@@ -50,14 +66,16 @@ echo -e "\033[1;34m 已禁用firewalld服务 \033[0m"
 
 echo -e "\033[1;32m 开始制作iptables脚本 \033[0m"
 
-mkdir bin
+if [ ! -d "/root/bin" ];then
+   mkdir /root/bin
+   else
+   echo -e "\033[1;34m 文件夹已存在 \033[0m"
+  fi
 
-cd bin && rm -rf iptables.sh*
+cd bin && rm -rf iptables.sh* && echo > iptables.sh && chmod +x iptables.sh
 
-echo > iptables.sh
-
-#! /bin/bash
-cat>/root/bin/iptables.sh<<EOF
+#!/bin/bash
+cat > /root/bin/iptables.sh <<EOF
 #!/bin/sh
 iptables -P INPUT ACCEPT
 iptables -F
@@ -91,7 +109,7 @@ systemctl enable iptables.service
 systemctl status iptables.service
 EOF
 
-chmod +x iptables.sh && ./iptables.sh
+./iptables.sh
 
 cd
 
@@ -148,9 +166,19 @@ which ntpdate
 
 echo -e "\033[1;32m 开始配置定时任务 \033[0m"
 
+if [ ! -f "/var/spool/cron/root" ];then
+   echo > /var/spool/cron/root
+   else
+   echo -e "\033[1;34m 文件已存在 \033[0m"
+  fi
+
 sed -i 's/.*ntpdate.*//' /var/spool/cron/root
 
-echo > /var/spool/cron/root  && echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
+echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
+
+sed -i 's/.*.acme.sh.*//' /var/spool/cron/root
+
+echo '29 0 * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/null' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
 
 #!/bin/bash
 i=0
@@ -350,7 +378,54 @@ rm -rf /etc/init.d/v2ray
 
 echo -e "\033[1;32m 开始安装v2ray \033[0m"
 
-rm -rf /etc/v2ray/config.json* && rm -rf install-release.sh* && wget http://www.jacobsdocuments.xyz/Code/v2ray/install-release.sh;bash install-release.sh && service v2ray restart && service v2ray status && cat /etc/v2ray/config.json && history -c && history -w
+rm -rf /etc/v2ray/config.json* && rm -rf install-release.sh* && wget --no-check-certificate -O install-release.sh http://www.jacobsdocuments.xyz/Code/v2ray/install-release.sh;bash install-release.sh && wget --no-check-certificate -O v2ray-linux-64.zip http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip && bash <(curl -L -s http://www.jacobsdocuments.xyz/Code/v2-ui/go.sh) --local /root/v2ray-linux-64.zip && service v2ray restart && rm -rf v2ray-linux-64.zip* && service v2ray status && cat /etc/v2ray/config.json && history -c && history -w
+
+rm -rf /etc/v2ray/config.json* && echo > /etc/v2ray/config.json* && echo > /etc/v2ray/config.json
+
+#!/bin/bash
+cat > /etc/v2ray/config.json <<EOF
+{
+  "inbounds": [{
+    "port": 10086,
+    "protocol": "vmess",
+    "settings": {
+      "clients": [
+        {
+          "id": "b72941b1-9a6c-37e4-a097-f9a9b933d799",
+          "level": 1,
+          "alterId": 1
+        }
+      ]
+    },
+    "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+        "path": "/v2ray"
+        }
+      }
+    }
+  ],
+  "outbounds": [{
+    "protocol": "freedom",
+    "settings": {}
+  },{
+    "protocol": "blackhole",
+    "settings": {},
+    "tag": "blocked"
+  }],
+  "routing": {
+    "rules": [
+      {
+        "type": "field",
+        "ip": ["geoip:private"],
+        "outboundTag": "blocked"
+      }
+    ]
+  }
+}
+EOF
+
+service v2ray restart && service v2ray status && cat /etc/v2ray/config.json
 
 echo -e "\033[1;32m 开始获取后端 \033[0m"
 
@@ -370,19 +445,21 @@ do
 done
 echo "done"
 
-echo -e "\033[1;32m 开始下载后端文件(先输入1或2最后输入0) \033[0m"
+echo -e "\033[1;32m 开始下载后端文件(先输入1/2/3最后输入0) \033[0m"
 
 #!/bin/sh
 until
-        echo "1.国外机专用"
-        echo "2.国内机专用"
-                        echo "0.退出菜单"
+        echo "1.v2ray-poseidon"
+        echo "2.v2ray-poseidon-cn"
+        echo "3.XrayR"
+        echo "0.退出菜单"
         read input
         test $input = 0
         do
             case $input in
-            1)rm -rf v2ray-poseidon* && wget http://www.jacobsdocuments.xyz/v2ray-poseidon/v2ray-poseidon.tar.gz && tar zxvf v2ray-poseidon.tar.gz && rm -rf v2ray-poseidon.tar.gz*;;
-            2)rm -rf v2ray-poseidon-cn* && wget http://www.jacobsdocuments.xyz/v2ray-poseidon/v2ray-poseidon-cn.tar.gz && tar zxvf v2ray-poseidon-cn.tar.gz && rm -rf v2ray-poseidon-cn.tar.gz*;;
+            1)rm -rf v2ray-poseidon* && wget --no-check-certificate -O v2ray-poseidon.tar.gz http://www.jacobsdocuments.xyz/v2ray-poseidon/v2ray-poseidon.tar.gz && tar zxvf v2ray-poseidon.tar.gz && rm -rf v2ray-poseidon.tar.gz*;;
+            2)rm -rf v2ray-poseidon-cn* && wget --no-check-certificate -O v2ray-poseidon-cn.tar.gz http://www.jacobsdocuments.xyz/v2ray-poseidon/v2ray-poseidon-cn.tar.gz && tar zxvf v2ray-poseidon-cn.tar.gz && rm -rf v2ray-poseidon-cn.tar.gz*;;
+                                   3)rm -rf XrayR* && wget --no-check-certificate -O XrayR.tar.gz http://www.jacobsdocuments.xyz/XrayR/XrayR.tar.gz && tar zxvf XrayR.tar.gz && rm -rf XrayR.tar.gz*;;
             0)echo "请输入选择（1-3）"
             esac
             done
