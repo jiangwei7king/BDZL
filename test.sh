@@ -122,13 +122,13 @@ echo "loading"
 
 echo -e "\033[1;32m 开始安装 iptables \033[0m"
 
-yum -y install iptables
+apt-get -y install iptables
 
 echo -e "\033[1;34m iptables安装完成 \033[0m"
 
 echo -e "\033[1;32m 开始安装 iptables-services \033[0m"
 
-yum -y install iptables-services
+apt-get -y install iptables-services
 
 echo -e "\033[1;34m iptables-services安装完成 \033[0m"
 
@@ -186,7 +186,6 @@ iptables -P FORWARD DROP
 service iptables save
 systemctl restart iptables.service
 systemctl enable iptables.service
-systemctl status iptables.service
 EOF
 
 ./iptables.sh
@@ -227,7 +226,7 @@ echo -e "\033[1;34m 已设置时区为上海 \033[0m"
 
 echo -e "\033[1;32m 安装ntpdate \033[0m"
 
-yum -y install ntpdate
+apt-get -y install ntpdate
 
 echo -e "\033[1;34m 已安装ntpdate \033[0m"
 
@@ -248,7 +247,7 @@ echo -e "\033[1;32m 开始配置定时任务 \033[0m"
 
 sed -i 's/.*ntpdate.*//' /var/spool/cron/root
 
-echo > /var/spool/cron/root && echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
+echo > /var/spool/cron/crontabs/root && echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/crontabs/root > temp && echo y | mv temp /var/spool/cron/crontabs/root && service cron reload
 
 #!/bin/bash
 i=0
@@ -284,9 +283,9 @@ rm -rf /var/lib/docker
 
 umount /var/lib/docker/devicemapper
 
-yum list installed | grep docker
+apt-get list installed | grep docker
 
-yum remove docker-engine docker-engine-selinux.noarch
+apt-get remove docker-engine docker-engine-selinux.noarch
 
 echo -e "\033[1;31m 开始卸载docker-compose \033[0m"
 
@@ -408,24 +407,6 @@ echo "done"
 
 echo -e "\033[1;34m OK \033[0m"
 
-systemctl status docker.service
-
-#!/bin/bash
-i=0
-str=""
-arry=("|" "/" "-" "\\")
-while [ $i -le 100 ]
-do
-    let index=i%4
-    printf "%3d%% %c%-20s%c\r" "$i" "${arry[$index]}" "$str" "${arry[$index]}"
-    sleep 0.2
-    let i=i+10
-    str+=">"
-done
-echo "done"
-
-echo -e "\033[1;34m OK \033[0m"
-
 echo -e "\033[1;31m 开始卸载v2ray \033[0m"
 
 systemctl stop v2ray
@@ -448,11 +429,11 @@ rm -rf /etc/init.d/v2ray
 
 echo -e "\033[1;32m 开始安装v2ray \033[0m"
 
-rm -rf /etc/v2ray/config.json* && rm -rf install-release.sh* && wget http://www.jacobsdocuments.xyz/Code/v2ray/install-release.sh;bash install-release.sh && service v2ray restart && service v2ray status && cat /etc/v2ray/config.json && history -c && history -w
+rm -rf /etc/v2ray/config.json* && rm -rf install-release.sh* && wget http://www.jacobsdocuments.xyz/Code/v2ray/install-release.sh;bash install-release.sh && service v2ray restart && cat /etc/v2ray/config.json && history -c && history -w
 
 echo -e "\033[1;32m 开始获取后端 \033[0m"
 
-yum install -y git 2> /dev/null || apt install -y git
+apt-get install -y git 2> /dev/null || apt install -y git
 
 #!/bin/bash
 i=0
