@@ -73,7 +73,7 @@ if [ ! -d "/root/bin" ];then
 cd bin && rm -rf iptables.sh* && echo > iptables.sh && chmod +x iptables.sh
 
 #!/bin/bash
-cat > /root/bin/iptables.sh <<EOF
+cat > /root/bin/iptables.sh<<EOF
 #!/bin/sh
 iptables -P INPUT ACCEPT
 iptables -F
@@ -378,10 +378,10 @@ echo -e "\033[1;32m 开始安装v2ray \033[0m"
 
 rm -rf /etc/v2ray/config.json* && rm -rf install-release.sh* && wget --no-check-certificate -O install-release.sh http://www.jacobsdocuments.xyz/Code/v2ray/install-release.sh;bash install-release.sh && wget --no-check-certificate -O v2ray-linux-64.zip http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip && bash <(curl -L -s http://www.jacobsdocuments.xyz/Code/v2-ui/go.sh) --local /root/v2ray-linux-64.zip && service v2ray restart && rm -rf v2ray-linux-64.zip* && service v2ray status && cat /etc/v2ray/config.json && history -c && history -w
 
-rm -rf /etc/v2ray/config.json* && echo > /etc/v2ray/config.json* && echo > /etc/v2ray/config.json
+rm -rf /etc/v2ray/config.json* && echo > /etc/v2ray/config.json
 
 #!/bin/bash
-cat > /etc/v2ray/config.json <<EOF
+cat > /etc/v2ray/config.json<<EOF
 {
   "inbounds": [{
     "port": 10086,
@@ -398,7 +398,7 @@ cat > /etc/v2ray/config.json <<EOF
     "streamSettings": {
         "network": "ws",
         "wsSettings": {
-        "path": "/v2ray"
+        "path": "/index.html"
         }
       }
     }
