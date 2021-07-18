@@ -38,8 +38,6 @@ do
 done
 echo "loading"
 
-yum -y install wget
-
 echo -e "\033[1;32m 开始安装 iptables \033[0m"
 
 yum -y install iptables
