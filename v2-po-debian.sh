@@ -379,6 +379,9 @@ cat > /etc/v2ray/config.json<<EOF
     "streamSettings": {
         "network": "ws",
         "wsSettings": {
+        "headers": {
+          "Host":""
+        },
         "path": "/index.html"
         }
       }
