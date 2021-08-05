@@ -185,7 +185,17 @@ sed -i '/^$/d' /var/spool/cron/root
 
 cp -a /var/spool/cron/root /var/spool/cron/crontabs/root
 
-service cron reload && crontab -l
+sudo chown root:root /etc/crontab
+
+sudo chmod 644 /etc/crontab
+
+service cron reload
+
+sudo /etc/init.d/cron restart
+
+ls /etc/crontab -lh
+
+crontab -l
 
 #!/bin/bash
 i=0
