@@ -171,11 +171,21 @@ if [ ! -f "/var/spool/cron/root" ];then
 
 sed -i 's/.*ntpdate.*//' /var/spool/cron/root
 
-echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
+echo '*/1 * * * * /usr/sbin/ntpdate pool.ntp.org > /dev/null 2>&1' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root
 
 sed -i 's/.*.acme.sh.*//' /var/spool/cron/root
 
-echo '29 0 * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/null' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root && service crond reload
+echo '29 0 * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/null' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root
+
+sed -i 's/.*autoclear.sh.*//' /var/spool/cron/root
+
+echo '*/1 * * * * /root/autoclear.sh' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root
+
+sed -i '/^$/d' /var/spool/cron/root
+
+cp -a /var/spool/cron/root /var/spool/cron/crontabs/root
+
+service cron reload && crontab -l
 
 #!/bin/bash
 i=0
