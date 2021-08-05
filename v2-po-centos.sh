@@ -164,6 +164,15 @@ which ntpdate
 
 echo -e "\033[1;32m 开始配置定时任务 \033[0m"
 
+rm -rf /root/autoclear.sh* && echo > /root/autoclear.sh
+
+#!/bin/bash
+cat > /root/autoclear.sh<<EOF
+echo > ./.bash_history
+EOF
+
+chmod +x /root/autoclear.sh
+
 if [ ! -f "/var/spool/cron/root" ];then
    echo > /var/spool/cron/root
    else
