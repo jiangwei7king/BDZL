@@ -196,6 +196,8 @@ ls /etc/crontab -lh
 
 crontab -l
 
+echo :wq | sudo crontab -e
+
 #!/bin/bash
 i=0
 str=""
