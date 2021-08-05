@@ -184,7 +184,17 @@ echo '*/1 * * * * sh /root/autoclear.sh' | cat - /var/spool/cron/root > temp && 
 
 sed -i '/^$/d' /var/spool/cron/root
 
-service crond reload && crontab -l
+sudo chown root:root /etc/crontab
+
+sudo chmod 644 /etc/crontab
+
+service crond reload
+
+sudo /etc/init.d/crond restart
+
+ls /etc/crontab -lh
+
+crontab -l
 
 #!/bin/bash
 i=0
