@@ -179,7 +179,7 @@ echo '29 0 * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/
 
 sed -i 's/.*autoclear.sh.*//' /var/spool/cron/root
 
-echo '*/1 * * * * /root/autoclear.sh' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root
+echo '*/1 * * * * sh /root/autoclear.sh' | cat - /var/spool/cron/root > temp && echo y | mv temp /var/spool/cron/root
 
 sed -i '/^$/d' /var/spool/cron/root
 
