@@ -199,6 +199,8 @@ crontab -l
 
 sed -i 's/#\(cron.*\)/\1/' /etc/rsyslog.conf && service rsyslog restart && service cron restart
 
+echo :wq | sudo crontab -e
+
 #!/bin/bash
 i=0
 str=""
