@@ -114,7 +114,7 @@ install_soga() {
     fi
 
     tar zxvf soga.tar.gz
-    rm soga.tar.gz -f
+    rm soga.tar.gz* -f
     cd soga
     chmod +x soga
     mkdir /etc/soga/ -p
