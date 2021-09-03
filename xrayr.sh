@@ -107,7 +107,8 @@ install_XrayR() {
 
     mkdir /usr/local/XrayR/ -p
 	cd /usr/local/XrayR/
-
+    
+    << EOF
     if  [ $# == 0 ] ;then
         last_version=$(curl -Ls "https://api.github.com/repos/XrayR-project/XrayR/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$last_version" ]]; then
@@ -121,6 +122,7 @@ install_XrayR() {
             exit 1
         fi
     else
+    EOF
         last_version=$1
         url="https://github.com/XrayR-project/XrayR/releases/download/${last_version}/XrayR-linux-${arch}.zip"
         echo -e "开始安装 XrayR v$1"
