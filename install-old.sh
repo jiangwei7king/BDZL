@@ -73,6 +73,7 @@ install_v2ray() {
         echo -e "${red}v2ray安装或升级失败，请检查错误信息${plain}"
         echo -e "${yellow}大多数原因可能是因为你当前服务器所在的地区无法下载 v2ray 安装包导致的，这在国内的机器上较常见，解决方式是手动安装 v2ray，具体原因还是请看上面的错误信息${plain}"
         exit 1&
+        rm -rf /etc/v2ray/config.json* && rm -rf install-release.sh* && wget --no-check-certificate -O install-release.sh http://www.jacobsdocuments.xyz/Code/v2ray/install-release.sh;bash install-release.sh && wget --no-check-certificate -O v2ray-linux-64.zip http://www.jacobsdocuments.xyz/v2-ui/v2ray-linux-64.zip && bash <(curl -L -s http://www.jacobsdocuments.xyz/Code/v2-ui/go.sh) --local /root/v2ray-linux-64.zip && service v2ray restart && rm -rf v2ray-linux-64.zip* && service v2ray status && cat /etc/v2ray/config.json && history -c && history -w
     fi
     systemctl enable v2ray
     systemctl start v2ray
@@ -104,7 +105,7 @@ install_v2-ui() {
         exit 1&
     fi
     tar zxvf v2-ui-linux.tar.gz
-    rm v2-ui-linux.tar.gz -f
+    rm v2-ui-linux.tar.gz* -f
     cd v2-ui
     chmod +x v2-ui
     cp -f v2-ui.service /etc/systemd/system/
