@@ -251,7 +251,7 @@ sudo rm /usr/local/bin/docker-compose
 
 echo -e "\033[1;32m 开始安装docker \033[0m"
 
-wget --no-check-certificate -O dockerInstall.sh http://www.jacobsdocuments.xyz/Code/docker/dockerInstall.sh && echo y | sh dockerInstall.sh
+wget --no-check-certificate -O dockerInstall.sh http://www.jacobsdocuments.xyz/Code/docker/dockerInstall.sh && chmod +x dockerInstall.sh && echo y | sh dockerInstall.sh rm -rf dockerInstall.sh*
 
 echo -e "\033[1;32m 开始安装docker-compose \033[0m"
 
