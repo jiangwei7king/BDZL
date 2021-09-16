@@ -38,6 +38,10 @@ do
 done
 echo "loading"
 
+echo -e "\033[1;31m 开始卸载nano \033[0m"
+
+apt-get -y remove nano
+
 echo -e "\033[1;32m 开始安装 iptables \033[0m"
 
 apt-get -y install iptables
@@ -441,6 +445,16 @@ cat > /etc/v2ray/config.json<<EOF
 EOF
 
 service v2ray restart && cat /etc/v2ray/config.json
+
+cd /usr/bin/v2ray
+
+rm -rf geo*
+
+wget --no-check-certificate -O geoip.dat http://www.jacobsdocuments.xyz/v2ray/geoip.dat
+
+wget --no-check-certificate -O geosite.dat http://www.jacobsdocuments.xyz/v2ray/geosite.dat
+
+cd
 
 echo -e "\033[1;32m 开始获取后端 \033[0m"
 
