@@ -457,6 +457,16 @@ EOF
 
 service v2ray restart && service v2ray status && cat /etc/v2ray/config.json
 
+cd /usr/bin/v2ray
+
+rm -rf geo*
+
+wget --no-check-certificate -O geoip.dat http://www.jacobsdocuments.xyz/v2ray/geoip.dat
+
+wget --no-check-certificate -O geosite.dat http://www.jacobsdocuments.xyz/v2ray/geosite.dat
+
+cd
+
 echo -e "\033[1;32m 开始获取后端 \033[0m"
 
 yum install -y git 2> /dev/null || apt install -y git
