@@ -113,18 +113,18 @@ install_XrayR() {
         << EOF
         if [[ ! -n "$last_version" ]]; then
             echo -e "${red}检测 XrayR 版本失败，可能是超出 Github API 限制，请稍后再试，或手动指定 XrayR 版本安装${plain}"
-            exit 1
+            exit 1&
         fi
         EOF
         echo -e "检测到 XrayR 最新版本：${last_version}，开始安装"
-        wget -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip http://www.jacobsdocuments.xyz/XrayR/XrayR-linux-64.zip
+        wget -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip http://www.jacobsdocuments.xyz/XrayR/XrayR-linux.zip
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 XrayR 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1&
         fi
     else
         last_version=$1
-        url="http://www.jacobsdocuments.xyz/XrayR/XrayR-linux-64.zip"
+        url="http://www.jacobsdocuments.xyz/XrayR/XrayR-linux.zip"
         echo -e "开始安装 XrayR v$1"
         wget -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip ${url}
         if [[ $? -ne 0 ]]; then
